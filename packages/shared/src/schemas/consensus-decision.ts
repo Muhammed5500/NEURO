@@ -33,7 +33,7 @@ export const consensusMethodSchema = z.enum([
 
 export type ConsensusMethod = z.infer<typeof consensusMethodSchema>;
 
-export const approvalStatusSchema = z.enum([
+export const consensusApprovalStatusSchema = z.enum([
   "pending",
   "approved",
   "rejected",
@@ -42,7 +42,7 @@ export const approvalStatusSchema = z.enum([
   "auto_rejected",
 ]);
 
-export type ApprovalStatus = z.infer<typeof approvalStatusSchema>;
+export type ConsensusApprovalStatus = z.infer<typeof consensusApprovalStatusSchema>;
 
 export const consensusDecisionSchema = createVersionedSchema({
   // Context
@@ -88,7 +88,7 @@ export const consensusDecisionSchema = createVersionedSchema({
   
   // Approval workflow
   requiresManualApproval: z.boolean(),
-  approvalStatus: approvalStatusSchema.default("pending"),
+  approvalStatus: consensusApprovalStatusSchema.default("pending"),
   approvedBy: z.string().optional(),
   approvedAt: z.string().datetime().optional(),
   rejectionReason: z.string().optional(),

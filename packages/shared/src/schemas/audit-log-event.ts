@@ -155,14 +155,55 @@ export type AuditLogEvent = z.infer<typeof auditLogEventSchema>;
 // FACTORY FUNCTIONS
 // ============================================
 
-export function createAuditLogEvent(
-  data: Omit<AuditLogEvent, "id" | "schemaVersion" | "createdAt">
-): AuditLogEvent {
+// Input type for creating audit events - only required fields
+export interface CreateAuditLogEventInput {
+  action: AuditAction;
+  category: z.infer<typeof auditCategorySchema>;
+  actorType: "system" | "user" | "agent" | "api" | "scheduler";
+  actorId: string;
+  description: string;
+  success: boolean;
+  severity: z.infer<typeof severitySchema>;
+  eventTimestamp: string;
+  // Optional fields
+  actorName?: string;
+  actorAddress?: string;
+  targetType?: string;
+  targetId?: string;
+  targetName?: string;
+  details?: Record<string, unknown>;
+  relatedIds?: {
+    decisionId?: string;
+    executionPlanId?: string;
+    transactionHash?: string;
+    sessionId?: string;
+  };
+  errorMessage?: string;
+  errorCode?: string;
+  clientInfo?: {
+    ipAddress?: string;
+    userAgent?: string;
+    origin?: string;
+  };
+  chainId?: number;
+  blockNumber?: number;
+  processingTimestamp?: string;
+  retentionDays?: number;
+  tags?: string[];
+}
+
+export function createAuditLogEvent(data: CreateAuditLogEventInput): AuditLogEvent {
   return auditLogEventSchema.parse({
     ...data,
     id: crypto.randomUUID(),
     schemaVersion: CURRENT_SCHEMA_VERSION,
     createdAt: new Date().toISOString(),
+    // Apply defaults for optional fields
+    details: data.details ?? {},
+    relatedIds: data.relatedIds ?? {},
+    clientInfo: data.clientInfo ?? {},
+    retentionDays: data.retentionDays ?? 90,
+    tags: data.tags ?? [],
   });
 }
 

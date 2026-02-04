@@ -48,18 +48,14 @@ export {
 
 // Content Sanitization
 export {
-    sanitize,
-    sanitizeText,
-    isContentSafe,
-    sanitizeNewsContent,
-    sanitizeSocialPost,
-    sanitizeTokenMetadata,
-    sanitizeUserInput,
-    sanitizeBatch,
-    SanitizationBlockedError,
+    sanitizeContent,
+    ContentSanitizer,
+    createContentSanitizer,
+    AdversarialPatternDatabase as ContentAdversarialPatternDatabase,
     type SanitizationOptions,
     type SanitizationResult,
-    type BatchSanitizationResult,
+    type SanitizationFlag,
+    type InjectionPattern,
 } from "./content-sanitizer.js";
 
 // Zero-Trust Message Bus
@@ -82,17 +78,12 @@ export {
 
 // Proof of Intent
 export {
-    ProofOfIntentManager,
-    getPoIManager,
-    resetPoIManager,
-    hashAction,
-    verifyProofOfIntent,
-    createActionCard,
+    ProofOfIntentService,
+    createProofOfIntentService,
     type ProofOfIntent,
-    type ActionCard,
-    type ActionType,
-    type PoIVerificationResult,
-    type OperatorKeyPair,
+    type ActionData,
+    type IntentVerificationResult,
+    type IntentValidatorConfig,
 } from "./proof-of-intent.js";
 
 // Rate Limiting
@@ -161,14 +152,26 @@ export {
 // ============================================
 
 import { getAdversarialPatternDatabase } from "./adversarial-patterns.js";
-import { sanitize, type SanitizationResult } from "./content-sanitizer.js";
+import { sanitizeContent, type SanitizationResult } from "./content-sanitizer.js";
 import { getMessageBus, type SecureMessage, type MessageValidationResult } from "./message-bus.js";
-import { getPoIManager, type ProofOfIntent, type ActionCard, type PoIVerificationResult } from "./proof-of-intent.js";
+import { ProofOfIntentService, type ProofOfIntent, type IntentVerificationResult } from "./proof-of-intent.js";
 import { getRateLimiter, type RateLimitResult } from "./rate-limiter.js";
 import { getAnomalyDetector, type AnomalyEvent } from "./anomaly-detector.js";
 import { getSignatureVerifier, type SignedData, type VerificationResult } from "./signature-verification.js";
 import { getAllowlistManager, type AllowlistCheckResult } from "./allowlist-manager.js";
 import { logger } from "../logger/index.js";
+
+// Singleton for PoI service
+let poiServiceInstance: ProofOfIntentService | null = null;
+function getPoIService(): ProofOfIntentService {
+    if (!poiServiceInstance) {
+        poiServiceInstance = new ProofOfIntentService({
+            knownOperators: new Map(),
+            maxProofAgeMs: 300000,
+        });
+    }
+    return poiServiceInstance;
+}
 
 const securityLogger = logger.child({ component: "security-layer" });
 
@@ -200,7 +203,7 @@ export interface FullSecurityCheckResult {
 export class SecurityLayer {
     private readonly patterns = getAdversarialPatternDatabase();
     private readonly messageBus = getMessageBus();
-    private readonly poiManager = getPoIManager();
+    private readonly poiService = getPoIService();
     private readonly rateLimiter = getRateLimiter();
     private readonly anomalyDetector = getAnomalyDetector();
     private readonly signatureVerifier = getSignatureVerifier();
@@ -222,13 +225,14 @@ export class SecurityLayer {
         const results: FullSecurityCheckResult["results"] = {};
 
         // Layer 1: Content Sanitization
-        const sanitizationResult = sanitize(content, {
-            blockOnHighSeverity: true,
-            auditLog: true,
+        const sanitizationResult = sanitizeContent(content, {
+            checkInjectionPatterns: true,
+            strictMode: true,
         });
         results.sanitization = sanitizationResult;
 
-        if (sanitizationResult.blocked) {
+        // Block if risk score is too high
+        if (sanitizationResult.riskScore > 50) {
             return {
                 allowed: false,
                 failedAt: "sanitization",
@@ -305,8 +309,11 @@ export class SecurityLayer {
     /**
      * Validate proof of intent for dashboard action
      */
-    validateApproval(proof: ProofOfIntent, actionCard?: ActionCard): PoIVerificationResult {
-        return this.poiManager.verifyProof(proof, actionCard);
+    validateApproval(proof: ProofOfIntent, expectedAction?: { id: string; type: string }): IntentVerificationResult {
+        if (!expectedAction) {
+            return { valid: false, error: "Expected action data required" };
+        }
+        return this.poiService.verifyProof(proof, expectedAction);
     }
 
     /**
@@ -337,7 +344,6 @@ export class SecurityLayer {
         return {
             patterns: this.patterns.getStats(),
             messageBus: this.messageBus.getStats(),
-            proofOfIntent: this.poiManager.getStats(),
             rateLimit: this.rateLimiter.getStats(),
             anomalyDetector: this.anomalyDetector.getStats(),
             signatureVerifier: this.signatureVerifier.getStats(),

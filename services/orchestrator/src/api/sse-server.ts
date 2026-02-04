@@ -9,6 +9,7 @@ import { createServer, IncomingMessage, ServerResponse } from "http";
 import { orchestratorLogger as logger } from "@neuro/shared";
 import { EventEmitter } from "events";
 import * as crypto from "crypto";
+import type { AgentRole } from "../graph/state.js";
 
 const sseLogger = logger.child({ component: "sse-server" });
 
@@ -16,7 +17,6 @@ const sseLogger = logger.child({ component: "sse-server" });
 // EVENT TYPES
 // ============================================
 
-export type AgentRole = "scout" | "macro" | "onchain" | "risk" | "adversarial";
 export type EventSeverity = "debug" | "info" | "warn" | "error" | "critical";
 export type EventType =
   | "AGENT_START"
@@ -132,8 +132,10 @@ export class SSEServer {
   private readonly emitter = new EventEmitter();
   private readonly store = new EventStore();
   private readonly clients: Map<string, ServerResponse> = new Map();
+  private readonly trendStreamClients: Map<string, ServerResponse> = new Map();
   private server: ReturnType<typeof createServer> | null = null;
   private heartbeatInterval: NodeJS.Timeout | null = null;
+  private trendHeartbeatInterval: NodeJS.Timeout | null = null;
 
   constructor() {
     this.emitter.setMaxListeners(100);
@@ -152,10 +154,18 @@ export class SSEServer {
       sseLogger.info({ port }, "SSE server listening");
     });
 
-    // Start heartbeat
+    // Start heartbeat for agent event clients
     this.heartbeatInterval = setInterval(() => {
       this.broadcast({ type: "heartbeat", timestamp: Date.now() });
     }, 30000);
+
+    // Heartbeat for trends stream clients (keeps SSE connection alive)
+    this.trendHeartbeatInterval = setInterval(() => {
+      const msg = { type: "heartbeat", timestamp: Date.now() };
+      for (const [, res] of this.trendStreamClients) {
+        this.sendTrendToClient(res, msg);
+      }
+    }, 15000);
   }
 
   /**
@@ -164,11 +174,17 @@ export class SSEServer {
   stop(): void {
     if (this.heartbeatInterval) {
       clearInterval(this.heartbeatInterval);
+      this.heartbeatInterval = null;
+    }
+    if (this.trendHeartbeatInterval) {
+      clearInterval(this.trendHeartbeatInterval);
+      this.trendHeartbeatInterval = null;
     }
     if (this.server) {
       this.server.close();
     }
     this.clients.clear();
+    this.trendStreamClients.clear();
     sseLogger.info("SSE server stopped");
   }
 
@@ -220,7 +236,7 @@ export class SSEServer {
   private handleRequest(req: IncomingMessage, res: ServerResponse): void {
     // CORS headers
     res.setHeader("Access-Control-Allow-Origin", "*");
-    res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
+    res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
     res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
     if (req.method === "OPTIONS") {
@@ -244,10 +260,143 @@ export class SSEServer {
     } else if (pathname === "/health") {
       res.writeHead(200, { "Content-Type": "application/json" });
       res.end(JSON.stringify({ status: "ok", clients: this.clients.size }));
+    } else if (pathname === "/api/status") {
+      this.handleApiStatus(req, res);
+    } else if (pathname === "/api/ingestion/health") {
+      this.jsonOk(res, { status: "ok" });
+    } else if (pathname === "/api/execution/health") {
+      this.jsonOk(res, { status: "ok" });
+    } else if (pathname === "/api/memory/health") {
+      this.jsonOk(res, { status: "ok" });
+    } else if (pathname === "/api/trends/keywords") {
+      this.handleTrendsKeywords(req, res);
+    } else if (pathname === "/api/trends/sentiment") {
+      this.handleTrendsSentiment(req, res);
+    } else if (pathname === "/api/trends/stream") {
+      this.handleTrendsStream(req, res);
+    } else if (pathname === "/api/nadfun/pending") {
+      this.handleNadfunPending(req, res);
+    } else if (pathname.startsWith("/api/nadfun/approve/") && req.method === "POST") {
+      this.handleNadfunApprove(req, res, pathname);
+    } else if (pathname.startsWith("/api/nadfun/reject/") && req.method === "POST") {
+      this.handleNadfunReject(req, res, pathname);
+    } else if (pathname === "/api/nadfun/tokens") {
+      this.handleNadfunTokens(req, res);
+    } else if (pathname === "/api/nadfun/bonding-curves") {
+      this.handleNadfunBondingCurves(req, res);
+    } else if (pathname === "/" || pathname === "/api") {
+      this.handleRoot(req, res);
     } else {
       res.writeHead(404, { "Content-Type": "application/json" });
       res.end(JSON.stringify({ error: "Not found" }));
     }
+  }
+
+  private jsonOk(res: ServerResponse, data: object): void {
+    res.writeHead(200, { "Content-Type": "application/json" });
+    res.end(JSON.stringify(data));
+  }
+
+  private handleRoot(_req: IncomingMessage, res: ServerResponse): void {
+    this.jsonOk(res, {
+      service: "NEURO Orchestrator Daemon",
+      version: "1.0.0",
+      status: "running",
+      endpoints: {
+        health: "/health",
+        status: "/api/status",
+        runs: "/api/runs",
+        stream: "/api/stream/events",
+        metrics: "/api/metrics",
+        trends: "/api/trends/keywords",
+        trendsSentiment: "/api/trends/sentiment",
+        trendsStream: "/api/trends/stream",
+      },
+    });
+  }
+
+  private handleApiStatus(_req: IncomingMessage, res: ServerResponse): void {
+    const now = new Date().toISOString();
+    const status = {
+      execution: { status: "offline" as const, latency: null, lastCheck: now, error: undefined },
+      orchestrator: { status: "online" as const, latency: 0, lastCheck: now, error: undefined },
+      ingestion: { status: "offline" as const, latency: null, lastCheck: now, error: undefined },
+      database: { status: "offline" as const, latency: null, lastCheck: now, error: undefined },
+      killSwitchEnabled: process.env.KILL_SWITCH_ENABLED === "true",
+      executionMode: (process.env.EXECUTION_MODE || "READ_ONLY") as "READ_ONLY" | "WRITE_ENABLED" | "DEMO",
+      chainStats: { blockNumber: null as number | null, gasPrice: null as number | null, connected: false },
+    };
+    this.jsonOk(res, status);
+  }
+
+  private handleTrendsKeywords(_req: IncomingMessage, res: ServerResponse): void {
+    this.jsonOk(res, { keywords: [] });
+  }
+
+  private handleTrendsSentiment(_req: IncomingMessage, res: ServerResponse): void {
+    this.jsonOk(res, {
+      overall: 0,
+      bullish: 0,
+      bearish: 0,
+      neutral: 0,
+      volume: 0,
+      lastUpdated: new Date().toISOString(),
+    });
+  }
+
+  private handleTrendsStream(req: IncomingMessage, res: ServerResponse): void {
+    const clientId = crypto.randomUUID();
+    res.writeHead(200, {
+      "Content-Type": "text/event-stream",
+      "Cache-Control": "no-cache",
+      "Connection": "keep-alive",
+      "X-Accel-Buffering": "no",
+    });
+    this.trendStreamClients.set(clientId, res);
+    this.sendTrendToClient(res, { type: "connected", clientId });
+    req.on("close", () => {
+      this.trendStreamClients.delete(clientId);
+    });
+  }
+
+  private sendTrendToClient(res: ServerResponse, data: unknown): void {
+    try {
+      res.write(`data: ${JSON.stringify(data)}\n\n`);
+    } catch (err) {
+      sseLogger.error({ error: err }, "Failed to send to trend client");
+    }
+  }
+
+  private handleNadfunPending(_req: IncomingMessage, res: ServerResponse): void {
+    this.jsonOk(res, { operations: [] });
+  }
+
+  private handleNadfunApprove(_req: IncomingMessage, res: ServerResponse, pathname: string): void {
+    const id = pathname.replace("/api/nadfun/approve/", "").trim();
+    if (!id) {
+      res.writeHead(400, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: "Missing operation id" }));
+      return;
+    }
+    this.jsonOk(res, { ok: true, id });
+  }
+
+  private handleNadfunReject(_req: IncomingMessage, res: ServerResponse, pathname: string): void {
+    const id = pathname.replace("/api/nadfun/reject/", "").trim();
+    if (!id) {
+      res.writeHead(400, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: "Missing operation id" }));
+      return;
+    }
+    this.jsonOk(res, { ok: true, id });
+  }
+
+  private handleNadfunTokens(_req: IncomingMessage, res: ServerResponse): void {
+    this.jsonOk(res, { tokens: [] });
+  }
+
+  private handleNadfunBondingCurves(_req: IncomingMessage, res: ServerResponse): void {
+    this.jsonOk(res, { tokens: [] });
   }
 
   private handleSSEConnection(
@@ -338,21 +487,20 @@ export class SSEServer {
     res.end(JSON.stringify({ runs }));
   }
 
-  private handleMetrics(req: IncomingMessage, res: ServerResponse): void {
-    // Import metrics service dynamically to avoid circular deps
-    const { getMetricsService } = require("../metrics/metrics-service.js");
-    
-    try {
-      const metricsService = getMetricsService();
-      const data = metricsService.getDashboardData();
-      
-      res.writeHead(200, { "Content-Type": "application/json" });
-      res.end(JSON.stringify(data));
-    } catch (err) {
-      sseLogger.error({ error: err }, "Failed to get metrics");
-      res.writeHead(500, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ error: "Failed to get metrics" }));
-    }
+  private handleMetrics(_req: IncomingMessage, res: ServerResponse): void {
+    (async () => {
+      try {
+        const { getMetricsService } = await import("../metrics/metrics-service.js");
+        const metricsService = getMetricsService();
+        const data = metricsService.getDashboardData();
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify(data));
+      } catch (err) {
+        sseLogger.error({ error: err }, "Failed to get metrics");
+        res.writeHead(500, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ error: "Failed to get metrics" }));
+      }
+    })();
   }
 
   private broadcast(data: unknown, eventType?: string): void {

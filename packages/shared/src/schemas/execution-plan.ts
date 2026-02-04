@@ -20,7 +20,6 @@ import {
   hexSchema,
   weiAmountSchema,
   uuidSchema,
-  statusSchema,
   severitySchema,
   MONAD_MAINNET_CHAIN_ID,
   CURRENT_SCHEMA_VERSION,

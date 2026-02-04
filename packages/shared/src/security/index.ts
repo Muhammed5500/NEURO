@@ -325,11 +325,18 @@ export function initializeSecurity(config: Partial<SecurityConfig>): void {
 // RE-EXPORT COMPREHENSIVE SECURITY LAYER
 // ============================================
 
-// Export all security modules from the unified security layer
+// Export the unified security layer (which already re-exports from individual modules)
 export * from "./security-layer.js";
 
-// Defense in Depth Modules
-export * from "./content-sanitizer.js";
-export * from "./secure-message.js";
-export * from "./proof-of-intent.js";
+// Export environment mode (not included in security-layer)
 export * from "./environment-mode.js";
+
+// Export secure message service (standalone module not in security-layer)
+export {
+    SecureMessageService,
+    createSecureMessageService,
+    generateSecretKey,
+    type SecureMessage as SecureMessageType,
+    type MessageValidationResult as SecureMessageValidationResult,
+    type SecureMessageConfig,
+} from "./secure-message.js";

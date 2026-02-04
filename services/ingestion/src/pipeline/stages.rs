@@ -226,20 +226,21 @@ impl Stage for EnrichStage {
     async fn process(&self, mut item: PipelineItem) -> anyhow::Result<PipelineItem> {
         let _timer = StageTimer::new(self.name());
         
-        // Extract text content from payload
+        // Extract text content from payload (clone to avoid borrow conflict)
         let text = item.event.payload
             .get("content")
             .or_else(|| item.event.payload.get("title"))
             .or_else(|| item.event.payload.get("description"))
             .and_then(|v| v.as_str())
-            .unwrap_or("");
+            .unwrap_or("")
+            .to_string();
         
         // Enrich with extracted data
         let enrichment = EnrichmentData {
-            sentiment_score: Some(self.simple_sentiment(text)),
+            sentiment_score: Some(self.simple_sentiment(&text)),
             entity_tags: vec![],
-            related_tickers: self.extract_tickers(text),
-            language: Some(self.detect_language(text)),
+            related_tickers: self.extract_tickers(&text),
+            language: Some(self.detect_language(&text)),
             category: Some(self.categorize(&item.event)),
         };
         

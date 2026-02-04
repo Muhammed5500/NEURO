@@ -33,7 +33,7 @@ export * from "./cross-check-service.js";
 export * from "./verification-manager.js";
 
 import { VerificationManager } from "./verification-manager.js";
-import { CrossCheckService, createCrossCheckService } from "./cross-check-service.js";
+import { createCrossCheckService } from "./cross-check-service.js";
 import { logger } from "@neuro/shared";
 
 const verificationLogger = logger.child({ service: "verification" });
@@ -49,8 +49,8 @@ async function main(): Promise<void> {
 
   await manager.initialize();
 
-  // Initialize cross-check service
-  const crossCheckService = createCrossCheckService({
+  // Initialize cross-check service (available for use via exports)
+  const _crossCheckService = createCrossCheckService({
     useMockProvider: process.env.USE_MOCK_PROVIDER === "true",
     staleThresholdHours: parseInt(process.env.STALE_THRESHOLD_HOURS || "6"),
     minSourcesForHighImportance: parseInt(process.env.MIN_SOURCES_HIGH_IMPORTANCE || "3"),
@@ -61,6 +61,7 @@ async function main(): Promise<void> {
   verificationLogger.info({
     staleThresholdHours: parseInt(process.env.STALE_THRESHOLD_HOURS || "6"),
     minSourcesForHighImportance: parseInt(process.env.MIN_SOURCES_HIGH_IMPORTANCE || "3"),
+    crossCheckServiceInitialized: !!_crossCheckService,
   }, "Cross-check service configured");
 
   verificationLogger.info("NEURO Verification Service started successfully");

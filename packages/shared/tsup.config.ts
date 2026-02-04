@@ -1,6 +1,7 @@
 import { defineConfig } from "tsup";
+import type { Options } from "tsup";
 
-export default defineConfig({
+export default defineConfig((options: Options) => ({
   entry: [
     "src/index.ts",
     "src/schemas/index.ts",
@@ -12,6 +13,7 @@ export default defineConfig({
   dts: true,
   splitting: false,
   sourcemap: true,
-  clean: true,
+  // Don't clean in watch mode to prevent race conditions with services
+  clean: !options.watch,
   treeshake: true,
-});
+}));

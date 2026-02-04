@@ -1,6 +1,14 @@
 "use client";
 
+/**
+ * useSystemStatus Hook - LIVE DATA ONLY
+ * 
+ * Fetches REAL system status from backend.
+ * NO MOCK DATA - returns error state if unavailable.
+ */
+
 import { useQuery } from "@tanstack/react-query";
+import { liveFetch, API, ConnectionError, type DataSourceError } from "@/lib/live-data-client";
 
 export interface SystemStatus {
   execution: ServiceStatus;
@@ -8,36 +16,35 @@ export interface SystemStatus {
   ingestion: ServiceStatus;
   database: ServiceStatus;
   killSwitchEnabled: boolean;
-  executionMode: "READ_ONLY" | "WRITE_ENABLED";
+  executionMode: "READ_ONLY" | "WRITE_ENABLED" | "DEMO";
   chainStats: {
-    blockNumber: number;
-    gasPrice: number;
+    blockNumber: number | null;
+    gasPrice: number | null;
     connected: boolean;
   };
 }
 
 export interface ServiceStatus {
   status: "online" | "offline" | "degraded";
-  latency: number;
+  latency: number | null;
   lastCheck: Date;
+  error?: string;
 }
 
 async function fetchSystemStatus(): Promise<SystemStatus> {
-  // In production, this would fetch from an API
-  // For now, return mock data
-  return {
-    execution: { status: "online", latency: 45, lastCheck: new Date() },
-    orchestrator: { status: "online", latency: 120, lastCheck: new Date() },
-    ingestion: { status: "online", latency: 12, lastCheck: new Date() },
-    database: { status: "online", latency: 3, lastCheck: new Date() },
-    killSwitchEnabled: false,
-    executionMode: "READ_ONLY",
-    chainStats: {
-      blockNumber: 0,
-      gasPrice: 0,
-      connected: true,
-    },
-  };
+  try {
+    const data = await liveFetch<SystemStatus>(
+      API.orchestrator.status(),
+      "SYSTEM_STATUS"
+    );
+    return data;
+  } catch (err) {
+    // Re-throw connection errors
+    if (err instanceof ConnectionError) {
+      throw err;
+    }
+    throw new ConnectionError("SYSTEM_STATUS", "UNKNOWN", String(err));
+  }
 }
 
 export function useSystemStatus() {
@@ -45,5 +52,7 @@ export function useSystemStatus() {
     queryKey: ["systemStatus"],
     queryFn: fetchSystemStatus,
     refetchInterval: 5000, // Refresh every 5 seconds
+    retry: false, // Don't retry on failure - show error immediately
+    staleTime: 0, // Always fetch fresh data
   });
 }

@@ -15,6 +15,7 @@
     "dev": "turbo run dev",
     "dev:dashboard": "turbo run dev --filter=@neuro/dashboard",
     "dev:orchestrator": "turbo run dev --filter=@neuro/orchestrator",
+    "daemon": "pnpm --filter @neuro/orchestrator run daemon",
     "dev:execution": "turbo run dev --filter=@neuro/execution",
     "dev:memory": "turbo run dev --filter=@neuro/memory",
     "dev:verification": "turbo run dev --filter=@neuro/verification",
