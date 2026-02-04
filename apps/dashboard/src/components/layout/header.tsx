@@ -1,8 +1,32 @@
 "use client";
 
 import { Activity, Cpu, Zap } from "lucide-react";
+import { EnvironmentBadge, type ExecutionMode } from "../controls/environment-badge";
+
+// In real app, this would come from context/store
+const getEnvironmentMode = (): {
+  mode: ExecutionMode;
+  network: "mainnet" | "testnet" | "devnet";
+  killSwitchActive: boolean;
+} => {
+  // Check environment variables (would be from API in real app)
+  const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE === "true";
+  const isReadOnly = process.env.NEXT_PUBLIC_MAINNET_READONLY === "true";
+  const isManualApproval = process.env.NEXT_PUBLIC_MANUAL_APPROVAL !== "false";
+  const killSwitchActive = process.env.NEXT_PUBLIC_KILL_SWITCH_ACTIVE === "true";
+  const network = (process.env.NEXT_PUBLIC_NETWORK as any) || "mainnet";
+
+  let mode: ExecutionMode = "MANUAL_APPROVAL";
+  if (isDemoMode) mode = "DEMO";
+  else if (isReadOnly) mode = "READONLY";
+  else if (!isManualApproval) mode = "AUTONOMOUS";
+
+  return { mode, network, killSwitchActive };
+};
 
 export function Header() {
+  const { mode, network, killSwitchActive } = getEnvironmentMode();
+
   return (
     <header className="fixed top-0 left-0 right-0 z-40 h-16 bg-cyber-dark/90 backdrop-blur-sm border-b border-cyber-purple/30">
       <div className="flex items-center justify-between h-full px-6">
@@ -19,7 +43,7 @@ export function Header() {
               NEURO
             </h1>
             <p className="text-xs text-gray-500 tracking-widest">
-              MONAD MAINNET • CHAIN ID 143
+              MONAD {network.toUpperCase()} • CHAIN ID 143
             </p>
           </div>
         </div>
@@ -48,12 +72,12 @@ export function Header() {
             </span>
           </div>
 
-          {/* Execution mode badge */}
-          <div className="px-3 py-1.5 bg-cyber-green/10 rounded border border-cyber-green/30">
-            <span className="text-sm font-bold text-cyber-green tracking-wide">
-              READ-ONLY
-            </span>
-          </div>
+          {/* Environment Mode Badge - Acceptance criteria: "Modes are obvious in UI" */}
+          <EnvironmentBadge
+            mode={mode}
+            network={network}
+            killSwitchActive={killSwitchActive}
+          />
         </div>
       </div>
     </header>

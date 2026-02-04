@@ -320,3 +320,16 @@ export function initializeSecurity(config: Partial<SecurityConfig>): void {
     timestamp: new Date(),
   });
 }
+
+// ============================================
+// RE-EXPORT COMPREHENSIVE SECURITY LAYER
+// ============================================
+
+// Export all security modules from the unified security layer
+export * from "./security-layer.js";
+
+// Defense in Depth Modules
+export * from "./content-sanitizer.js";
+export * from "./secure-message.js";
+export * from "./proof-of-intent.js";
+export * from "./environment-mode.js";
