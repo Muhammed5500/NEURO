@@ -1,0 +1,34 @@
+{
+  "name": "@neuro/execution",
+  "version": "1.0.0",
+  "private": true,
+  "description": "NEURO Execution Service - Monad Mainnet & nad.fun Integration",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsx watch src/index.ts",
+    "start": "node dist/index.js",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src/",
+    "test": "vitest run",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@neuro/shared": "workspace:*",
+    "viem": "^2.21.0",
+    "zod": "^3.24.0",
+    "dotenv": "^16.4.0",
+    "ky": "^1.7.0",
+    "p-queue": "^8.0.0",
+    "eventemitter3": "^5.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.17.0",
+    "tsup": "^8.3.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0",
+    "vitest": "^2.1.0"
+  }
+}

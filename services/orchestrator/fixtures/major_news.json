@@ -1,0 +1,126 @@
+{
+  "query": "Major news about Monad ecosystem - should we take action on trending tokens?",
+  "targetToken": {
+    "address": "0x1234567890123456789012345678901234567890",
+    "symbol": "PEPE"
+  },
+  "news": [
+    {
+      "id": "news-001",
+      "title": "Monad Achieves 10,000 TPS in Mainnet Performance Test",
+      "content": "The Monad blockchain has demonstrated impressive performance metrics, achieving 10,000 transactions per second in recent mainnet tests. This makes it one of the fastest EVM-compatible chains. Developers are rushing to deploy applications on the network.",
+      "source": "cryptonews",
+      "publishedAt": "2024-01-15T10:00:00Z",
+      "sentiment": "bullish",
+      "sentimentScore": 0.85,
+      "tickers": ["MON"],
+      "category": "protocol",
+      "relevanceScore": 0.95
+    },
+    {
+      "id": "news-002",
+      "title": "nad.fun Memecoin Platform Sees Record Volume",
+      "content": "The memecoin launchpad nad.fun on Monad has seen record trading volume this week, with over $5M in daily transactions. The platform's bonding curve mechanism has attracted both retail and whale traders.",
+      "source": "defipulse",
+      "publishedAt": "2024-01-15T11:00:00Z",
+      "sentiment": "bullish",
+      "sentimentScore": 0.78,
+      "tickers": ["MON", "PEPE"],
+      "category": "market",
+      "relevanceScore": 0.88
+    },
+    {
+      "id": "news-003",
+      "title": "Top Crypto Influencer Highlights PEPE Token on Monad",
+      "content": "A prominent crypto influencer with 500K followers has shared analysis of the PEPE token on nad.fun, calling it 'the next 100x opportunity'. The token has seen 300% volume increase following the mention.",
+      "source": "twitter_aggregator",
+      "publishedAt": "2024-01-15T12:00:00Z",
+      "sentiment": "bullish",
+      "sentimentScore": 0.92,
+      "tickers": ["PEPE"],
+      "category": "social",
+      "relevanceScore": 0.85
+    }
+  ],
+  "social": [
+    {
+      "id": "social-001",
+      "platform": "twitter",
+      "content": "Just discovered $PEPE on @nadfun - the chart looks incredible! 🚀 Loading my bags before this goes parabolic. NFA but this feels like early $DOGE vibes.",
+      "authorId": "cryptowhale_123",
+      "authorFollowers": 250000,
+      "isInfluencer": true,
+      "sentiment": "bullish",
+      "sentimentScore": 0.88,
+      "engagementRate": 4.5,
+      "postedAt": "2024-01-15T12:30:00Z",
+      "tickers": ["PEPE", "DOGE"]
+    },
+    {
+      "id": "social-002",
+      "platform": "twitter",
+      "content": "Monad ecosystem is heating up! $MON gas fees are incredibly low and @nadfun is pumping. Time to ape in? 🦍",
+      "authorId": "defi_degen",
+      "authorFollowers": 50000,
+      "isInfluencer": false,
+      "sentiment": "bullish",
+      "sentimentScore": 0.75,
+      "engagementRate": 2.1,
+      "postedAt": "2024-01-15T13:00:00Z",
+      "tickers": ["MON"]
+    },
+    {
+      "id": "social-003",
+      "platform": "discord",
+      "content": "PEPE community is strong! Just joined the TG group, 5000 members already. Dev is active and liquidity is locked. This is the one.",
+      "authorId": "meme_hunter",
+      "authorFollowers": 1000,
+      "isInfluencer": false,
+      "sentiment": "bullish",
+      "sentimentScore": 0.82,
+      "engagementRate": 1.5,
+      "postedAt": "2024-01-15T13:15:00Z",
+      "tickers": ["PEPE"]
+    }
+  ],
+  "onchain": {
+    "gasPrice": "20000000000",
+    "gasPriceGwei": 20,
+    "blockNumber": 15000000,
+    "networkCongestion": "low",
+    "tokenAddress": "0x1234567890123456789012345678901234567890",
+    "tokenSymbol": "PEPE",
+    "poolLiquidity": "50000000000000000000000",
+    "poolLiquidityUsd": 25000,
+    "volume24h": 150000,
+    "holderCount": 1250,
+    "bondingCurveProgress": 45,
+    "timestamp": "2024-01-15T14:00:00Z"
+  },
+  "memory": [
+    {
+      "id": "mem-001",
+      "score": 0.87,
+      "content": "Similar influencer-driven pump on DOGE clone in November. Initial 200% gain followed by 80% crash within 48 hours.",
+      "source": "historical_analysis",
+      "timestamp": "2023-11-15T10:00:00Z",
+      "marketOutcome": {
+        "priceImpactDirection": "up",
+        "priceImpactPercent": 180,
+        "timeToImpactMs": 86400000
+      }
+    },
+    {
+      "id": "mem-002",
+      "score": 0.72,
+      "content": "Monad ecosystem launch saw coordinated social media campaign. Early buyers made 5x, late buyers lost 60%.",
+      "source": "market_memory",
+      "timestamp": "2023-12-01T10:00:00Z",
+      "marketOutcome": {
+        "priceImpactDirection": "up",
+        "priceImpactPercent": 400,
+        "timeToImpactMs": 172800000
+      }
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "name": "@neuro/memory",
+  "version": "1.0.0",
+  "private": true,
+  "description": "NEURO Memory Service - Vector DB Adapter + Embedding with AI context",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsx watch src/index.ts",
+    "start": "node dist/index.js",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src/",
+    "test": "vitest run",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@neuro/shared": "workspace:*",
+    "@qdrant/js-client-rest": "^1.12.0",
+    "openai": "^4.73.0",
+    "@xenova/transformers": "^2.17.0",
+    "zod": "^3.24.0",
+    "dotenv": "^16.4.0",
+    "ioredis": "^5.4.0",
+    "p-queue": "^8.0.0",
+    "p-retry": "^6.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.17.0",
+    "tsup": "^8.3.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0",
+    "vitest": "^2.1.0"
+  }
+}

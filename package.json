@@ -1,0 +1,50 @@
+{
+  "name": "neuro-monad",
+  "version": "1.0.0",
+  "private": true,
+  "description": "NEURO - Autonomous AI Agent for Monad MAINNET Token Management on nad.fun",
+  "author": "NEURO Team",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=9.0.0"
+  },
+  "packageManager": "pnpm@9.15.0",
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "dev:dashboard": "turbo run dev --filter=@neuro/dashboard",
+    "dev:orchestrator": "turbo run dev --filter=@neuro/orchestrator",
+    "dev:execution": "turbo run dev --filter=@neuro/execution",
+    "dev:memory": "turbo run dev --filter=@neuro/memory",
+    "dev:verification": "turbo run dev --filter=@neuro/verification",
+    "dev:ingestion": "cd services/ingestion && cargo run",
+    "orchestrator:run": "pnpm --filter @neuro/orchestrator run orchestrator:run",
+    "start": "turbo run start",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "test:watch": "turbo run test -- --watch",
+    "test:coverage": "turbo run test -- --coverage",
+    "typecheck": "turbo run typecheck",
+    "clean": "turbo run clean && rm -rf node_modules .turbo",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\"",
+    "db:migrate": "pnpm --filter @neuro/shared run db:migrate",
+    "db:generate": "pnpm --filter @neuro/shared run db:generate",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f",
+    "contracts:build": "cd contracts/neuro-core && forge build",
+    "contracts:test": "cd contracts/neuro-core && forge test",
+    "prepare": "echo 'Ready'",
+    "preinstall": "npx only-allow pnpm"
+  },
+  "devDependencies": {
+    "@types/node": "^20.17.0",
+    "eslint": "^9.16.0",
+    "prettier": "^3.4.0",
+    "turbo": "^2.3.0",
+    "typescript": "^5.7.0",
+    "vitest": "^2.1.0"
+  }
+}

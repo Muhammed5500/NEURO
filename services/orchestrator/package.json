@@ -1,0 +1,40 @@
+{
+  "name": "@neuro/orchestrator",
+  "version": "1.0.0",
+  "private": true,
+  "description": "NEURO Orchestrator - Multi-Agent Consensus Engine with LangGraph",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsx watch src/index.ts",
+    "start": "node dist/index.js",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src/",
+    "test": "vitest run",
+    "test:consensus": "vitest run --filter consensus",
+    "clean": "rm -rf dist",
+    "orchestrator:run": "tsx src/cli/runner.ts"
+  },
+  "dependencies": {
+    "@neuro/shared": "workspace:*",
+    "@langchain/core": "^0.3.0",
+    "@langchain/langgraph": "^0.2.0",
+    "@langchain/openai": "^0.3.0",
+    "@langchain/anthropic": "^0.3.0",
+    "zod": "^3.24.0",
+    "dotenv": "^16.4.0",
+    "ioredis": "^5.4.0",
+    "pg": "^8.13.0",
+    "eventemitter3": "^5.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.17.0",
+    "@types/pg": "^8.11.0",
+    "tsup": "^8.3.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0",
+    "vitest": "^2.1.0"
+  }
+}

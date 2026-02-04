@@ -1,0 +1,115 @@
+{
+  "query": "New token with suspicious activity - evaluate if this is a trap",
+  "targetToken": {
+    "address": "0xDEADBEEF00000000000000000000000000000001",
+    "symbol": "SCAMCOIN"
+  },
+  "news": [
+    {
+      "id": "news-001",
+      "title": "Anonymous Team Launches 'Revolutionary' Token with 1000x Potential",
+      "content": "A new token SCAMCOIN promises revolutionary technology and guaranteed returns. The anonymous team claims backing from major VCs but provides no verifiable evidence. Whitepaper is copied from another project.",
+      "source": "unknown_blog",
+      "publishedAt": "2024-01-15T10:00:00Z",
+      "sentiment": "bullish",
+      "sentimentScore": 0.95,
+      "tickers": ["SCAMCOIN"],
+      "category": "announcement",
+      "relevanceScore": 0.5
+    }
+  ],
+  "social": [
+    {
+      "id": "social-001",
+      "platform": "twitter",
+      "content": "🚀🚀🚀 $SCAMCOIN IS THE NEXT 1000X GEM! BUY NOW BEFORE IT'S TOO LATE! DEV IS BASED! LIQUIDITY LOCKED! 🔒 NFA DYOR 🚀🚀🚀",
+      "authorId": "new_account_12345",
+      "authorFollowers": 50,
+      "isInfluencer": false,
+      "sentiment": "bullish",
+      "sentimentScore": 0.99,
+      "engagementRate": 15.0,
+      "postedAt": "2024-01-15T10:05:00Z",
+      "tickers": ["SCAMCOIN"]
+    },
+    {
+      "id": "social-002",
+      "platform": "twitter",
+      "content": "Just bought $SCAMCOIN! Dev is amazing and this will moon! Don't miss out! 🌙 #SCAMCOIN #GEM #100x",
+      "authorId": "crypto_gem_finder_99",
+      "authorFollowers": 25,
+      "isInfluencer": false,
+      "sentiment": "bullish",
+      "sentimentScore": 0.95,
+      "engagementRate": 20.0,
+      "postedAt": "2024-01-15T10:06:00Z",
+      "tickers": ["SCAMCOIN"]
+    },
+    {
+      "id": "social-003",
+      "platform": "twitter",
+      "content": "$SCAMCOIN community growing fast! 10000 holders in 1 hour! This is HUGE! Buy the dip! 📈",
+      "authorId": "moon_boy_2024",
+      "authorFollowers": 10,
+      "isInfluencer": false,
+      "sentiment": "bullish",
+      "sentimentScore": 0.98,
+      "engagementRate": 25.0,
+      "postedAt": "2024-01-15T10:07:00Z",
+      "tickers": ["SCAMCOIN"]
+    },
+    {
+      "id": "social-004",
+      "platform": "telegram",
+      "content": "CALLING ALL DEGENS! $SCAMCOIN PRESALE ENDING SOON! SEND ETH TO THIS ADDRESS FOR 2X BONUS!",
+      "authorId": "admin_scamcoin",
+      "authorFollowers": 0,
+      "isInfluencer": false,
+      "sentiment": "bullish",
+      "sentimentScore": 0.99,
+      "engagementRate": 50.0,
+      "postedAt": "2024-01-15T10:10:00Z",
+      "tickers": ["SCAMCOIN"]
+    }
+  ],
+  "onchain": {
+    "gasPrice": "50000000000",
+    "gasPriceGwei": 50,
+    "blockNumber": 15000100,
+    "networkCongestion": "medium",
+    "tokenAddress": "0xDEADBEEF00000000000000000000000000000001",
+    "tokenSymbol": "SCAMCOIN",
+    "poolLiquidity": "500000000000000000",
+    "poolLiquidityUsd": 250,
+    "volume24h": 50000,
+    "holderCount": 50,
+    "bondingCurveProgress": 5,
+    "timestamp": "2024-01-15T10:15:00Z"
+  },
+  "memory": [
+    {
+      "id": "mem-001",
+      "score": 0.95,
+      "content": "Identical social media pattern seen in RUG_TOKEN scam. Coordinated bot posts, new accounts, excessive emojis, unrealistic claims. Lost 100% of value within 2 hours of launch.",
+      "source": "scam_database",
+      "timestamp": "2023-10-01T10:00:00Z",
+      "marketOutcome": {
+        "priceImpactDirection": "down",
+        "priceImpactPercent": -100,
+        "timeToImpactMs": 7200000
+      }
+    },
+    {
+      "id": "mem-002",
+      "score": 0.91,
+      "content": "Honeypot contract with hidden sell restriction. Contract code matches known scam template. Deployer wallet linked to 15 previous rug pulls.",
+      "source": "contract_analysis",
+      "timestamp": "2023-11-15T10:00:00Z",
+      "marketOutcome": {
+        "priceImpactDirection": "down",
+        "priceImpactPercent": -100,
+        "timeToImpactMs": 3600000
+      }
+    }
+  ]
+}

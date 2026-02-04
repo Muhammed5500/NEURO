@@ -1,0 +1,121 @@
+version: "3.9"
+
+# NEURO Local Infrastructure
+# PostgreSQL, Redis, Qdrant for development
+
+services:
+  # ============================================
+  # PostgreSQL - Primary Database
+  # ============================================
+  postgres:
+    image: postgres:16-alpine
+    container_name: neuro-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: neuro
+      POSTGRES_PASSWORD: neuro_secure_password
+      POSTGRES_DB: neuro_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U neuro -d neuro_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - neuro-network
+
+  # ============================================
+  # Redis - Caching & Pub/Sub
+  # ============================================
+  redis:
+    image: redis:7-alpine
+    container_name: neuro-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - neuro-network
+
+  # ============================================
+  # Qdrant - Vector Database for AI Embeddings
+  # ============================================
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: neuro-qdrant
+    restart: unless-stopped
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - qdrant_data:/qdrant/storage
+    environment:
+      QDRANT__SERVICE__GRPC_PORT: 6334
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6333/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - neuro-network
+
+  # ============================================
+  # Redis Commander - Redis UI (Development Only)
+  # ============================================
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: neuro-redis-ui
+    restart: unless-stopped
+    environment:
+      REDIS_HOSTS: local:redis:6379
+    ports:
+      - "8081:8081"
+    depends_on:
+      - redis
+    profiles:
+      - dev
+    networks:
+      - neuro-network
+
+  # ============================================
+  # pgAdmin - PostgreSQL UI (Development Only)
+  # ============================================
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: neuro-pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@neuro.local
+      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+    ports:
+      - "8082:80"
+    depends_on:
+      - postgres
+    profiles:
+      - dev
+    networks:
+      - neuro-network
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  qdrant_data:
+    driver: local
+
+networks:
+  neuro-network:
+    driver: bridge
