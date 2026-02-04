@@ -35,7 +35,7 @@ use clap::{Parser, Subcommand};
 use std::sync::Arc;
 use tokio::signal;
 use tokio::sync::broadcast;
-use tracing::{info, error};
+use tracing::{info, error, warn};
 use tracing_subscriber::{fmt, EnvFilter, layer::SubscriberExt, util::SubscriberInitExt};
 
 use crate::checkpoint::parse_since;

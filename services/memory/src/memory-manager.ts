@@ -6,31 +6,25 @@
  */
 
 import { logger } from "@neuro/shared";
-import Redis from "ioredis";
+import Redis, { type Redis as RedisClient } from "ioredis";
 
-import { QdrantAdapter, createQdrantAdapter } from "./adapters/qdrant-adapter.js";
+import { createQdrantAdapter } from "./adapters/qdrant-adapter.js";
 import { 
-  ResilientEmbeddingProvider, 
   createEmbeddingProvider,
   type IEmbeddingProvider,
-  type EmbeddingProviderConfig 
 } from "./providers/embedding-provider.js";
 import { 
-  SimilarityQueryService, 
   createSimilarityQueryService,
   type SimilarityQueryResult,
   type SimilarityQueryOptions 
 } from "./services/similarity-query.js";
 import { 
-  AsyncIndexerService, 
   createAsyncIndexer,
   type IndexItem,
   type IndexResult,
-  type AsyncIndexerConfig,
   type IndexerStats 
 } from "./services/async-indexer.js";
 import { 
-  MarketOutcomeLabeler, 
   createMarketLabeler,
   type IMarketDataProvider,
   type LabelingConfig 
@@ -39,7 +33,6 @@ import {
   type VectorMetadata,
   type QueryMetadata,
   type QueryStats,
-  createVectorMetadata,
   metadataFromNewsItem,
   metadataFromSocialSignal,
   metadataFromIngestionEvent,
@@ -107,7 +100,7 @@ export class MemoryManager {
   private similarityQuery: SimilarityQueryService;
   private indexer: AsyncIndexerService;
   private labeler: MarketOutcomeLabeler;
-  private redis?: Redis;
+  private redis?: RedisClient;
   private initialized = false;
 
   constructor(config: MemoryManagerConfig) {

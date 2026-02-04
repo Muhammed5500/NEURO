@@ -53,8 +53,10 @@ async function main(): Promise<void> {
   });
 }
 
-// Run if executed directly
-const isMainModule = import.meta.url === `file://${process.argv[1]}`;
+// Run if executed directly (cross-platform compatible)
+const currentFileUrl = import.meta.url;
+const argvPath = process.argv[1]?.replace(/\\/g, "/") || "";
+const isMainModule = currentFileUrl.endsWith(argvPath) || currentFileUrl === `file:///${argvPath}` || currentFileUrl === `file://${argvPath}`;
 if (isMainModule) {
   main().catch((error) => {
     logger.fatal({ error }, "Failed to start NEURO Execution Service");

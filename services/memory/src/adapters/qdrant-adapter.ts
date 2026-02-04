@@ -36,7 +36,7 @@ export interface SearchOptions {
   withVector?: boolean;
 }
 
-export interface SearchResult {
+export interface QdrantSearchResult {
   id: string;
   score: number;
   payload: VectorMetadata & { content: string };
@@ -165,7 +165,7 @@ export class QdrantAdapter {
   async search(
     vector: number[],
     options: SearchOptions = {}
-  ): Promise<SearchResult[]> {
+  ): Promise<QdrantSearchResult[]> {
     const {
       limit = 10,
       scoreThreshold = 0.0,
@@ -200,7 +200,7 @@ export class QdrantAdapter {
   async findDuplicates(
     vector: number[],
     threshold: number = 0.99
-  ): Promise<SearchResult[]> {
+  ): Promise<QdrantSearchResult[]> {
     const results = await this.search(vector, {
       limit: 5,
       scoreThreshold: threshold,
@@ -252,7 +252,7 @@ export class QdrantAdapter {
   /**
    * Get a specific vector by ID
    */
-  async getById(id: string): Promise<SearchResult | null> {
+  async getById(id: string): Promise<QdrantSearchResult | null> {
     try {
       const points = await this.client.retrieve(this.collectionName, {
         ids: [id],
@@ -284,7 +284,7 @@ export class QdrantAdapter {
       filter?: Schemas["Filter"];
     } = {}
   ): Promise<{
-    points: SearchResult[];
+    points: QdrantSearchResult[];
     nextOffset: string | null;
   }> {
     const { limit = 100, offset = null, filter } = options;

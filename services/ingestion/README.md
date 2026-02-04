@@ -29,9 +29,20 @@ docker compose up -d
 # Build
 cargo build --release
 
-# Run pipeline
-cargo run -- pipeline --channel-capacity 1000 --enrich true
+# Run pipeline (set REDIS_URL for Redis Streams)
+REDIS_URL=redis://localhost:6379 cargo run -- pipeline --channel-capacity 1000 --enrich true
 ```
+
+### Restarting on Windows
+
+If you get **"Erişim engellendi" (Access denied)** when running `cargo run -- pipeline` again, the previous process is still running and locking the `.exe`. Stop it first:
+
+```powershell
+# Stop the running ingestion process
+Get-Process -Name "neuro-ingestion" -ErrorAction SilentlyContinue | Stop-Process -Force
+```
+
+Then run `cargo run -- pipeline` again.
 
 ## Commands
 

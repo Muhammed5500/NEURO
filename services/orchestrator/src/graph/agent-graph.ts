@@ -255,6 +255,9 @@ export interface CreateGraphOptions {
   runRecordPath?: string;
 }
 
+// Type alias for compiled graph
+export type CompiledAgentGraph = Awaited<ReturnType<typeof createAgentGraph>>;
+
 export async function createAgentGraph(
   config: OrchestratorConfig,
   options: CreateGraphOptions = {}

@@ -300,3 +300,166 @@
 .source-estimated {
   @apply bg-cyber-yellow/20 text-cyber-yellow border-cyber-yellow/30;
 }
+
+/* ============================================
+   LAUNCHPAD SPECIFIC ANIMATIONS
+   ============================================ */
+
+/* Scanning animation for trend grid */
+@keyframes scan {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100%); }
+}
+
+.animate-scan {
+  animation: scan 2s ease-in-out infinite;
+}
+
+/* Pulse once for new activity items */
+@keyframes pulse-once {
+  0% { 
+    background-color: rgba(74, 222, 128, 0.2); 
+    border-color: rgba(74, 222, 128, 0.5);
+  }
+  100% { 
+    background-color: transparent; 
+    border-color: rgba(147, 51, 234, 0.1);
+  }
+}
+
+.animate-pulse-once {
+  animation: pulse-once 2s ease-out forwards;
+}
+
+/* Pipeline flow animation */
+@keyframes flow {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.animate-flow {
+  background-size: 200% 100%;
+  animation: flow 2s linear infinite;
+}
+
+/* Velocity indicator pulse */
+@keyframes velocity-pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.1); opacity: 0.8; }
+}
+
+.velocity-high {
+  animation: velocity-pulse 0.5s ease-in-out infinite;
+}
+
+/* Graduation celebration */
+@keyframes celebrate {
+  0%, 100% { transform: scale(1) rotate(0deg); }
+  25% { transform: scale(1.1) rotate(-5deg); }
+  75% { transform: scale(1.1) rotate(5deg); }
+}
+
+.animate-celebrate {
+  animation: celebrate 0.5s ease-in-out;
+}
+
+/* K-factor viral glow */
+@keyframes viral-glow {
+  0%, 100% { 
+    box-shadow: 0 0 5px rgba(74, 222, 128, 0.5), 0 0 10px rgba(74, 222, 128, 0.3);
+  }
+  50% { 
+    box-shadow: 0 0 15px rgba(74, 222, 128, 0.8), 0 0 30px rgba(74, 222, 128, 0.5);
+  }
+}
+
+.viral-active {
+  animation: viral-glow 1s ease-in-out infinite;
+}
+
+/* Trend detection shimmer */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.trend-shimmer {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(147, 51, 234, 0.2) 50%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
+
+/* Progress bar fill animation */
+@keyframes progress-fill {
+  from { width: 0; }
+}
+
+.progress-animated {
+  animation: progress-fill 1s ease-out;
+}
+
+/* Aggressive action button */
+.action-button-aggressive {
+  @apply relative overflow-hidden;
+}
+
+.action-button-aggressive::before {
+  content: '';
+  @apply absolute inset-0;
+  background: linear-gradient(
+    45deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.1) 50%,
+    transparent 70%
+  );
+  transform: translateX(-100%);
+  transition: transform 0.5s;
+}
+
+.action-button-aggressive:hover::before {
+  transform: translateX(100%);
+}
+
+/* Deployment status badge */
+.badge-deployment {
+  @apply bg-cyber-pink/20 text-cyber-pink border border-cyber-pink/30;
+  text-shadow: 0 0 10px rgba(236, 72, 153, 0.5);
+}
+
+.badge-viral-growth {
+  @apply bg-neon-green/20 text-neon-green border border-neon-green/30;
+  text-shadow: 0 0 10px rgba(74, 222, 128, 0.5);
+}
+
+.badge-stalling {
+  @apply bg-cyber-yellow/20 text-cyber-yellow border border-cyber-yellow/30;
+}
+
+.badge-accelerating {
+  @apply bg-cyber-cyan/20 text-cyber-cyan border border-cyber-cyan/30;
+  animation: pulse 2s infinite;
+}
+
+/* Aggressive section headers */
+.section-header-aggressive {
+  @apply relative pl-4;
+}
+
+.section-header-aggressive::before {
+  content: '';
+  @apply absolute left-0 top-0 bottom-0 w-1 rounded-full;
+  background: linear-gradient(180deg, #9333ea, #ec4899);
+}
+
+/* Grid cyber overlay */
+.cyber-grid-overlay {
+  background-image: 
+    linear-gradient(rgba(147, 51, 234, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(147, 51, 234, 0.03) 1px, transparent 1px);
+  background-size: 20px 20px;
+}

@@ -4,7 +4,7 @@
  */
 
 import { type Address } from "viem";
-import { logger, MONAD_MAINNET, NADFUN_API } from "@neuro/shared";
+import { logger } from "@neuro/shared";
 import {
   TransactionVerifier,
   type TransactionToVerify,

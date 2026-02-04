@@ -31,11 +31,13 @@ export * from "./monitoring/index.js";
 export * from "./treasury/index.js";
 export * from "./api/index.js";
 export * from "./metrics/index.js";
+export * from "./live/index.js";
 export * from "./config.js";
 
-import { createAgentGraph, runConsensusGraph } from "./graph/agent-graph.js";
+import { createAgentGraph } from "./graph/agent-graph.js";
 import { loadOrchestratorConfig, getConsensusConfig } from "./config.js";
 import { orchestratorLogger as logger } from "@neuro/shared";
+import { getSSEServer } from "./api/sse-server.js";
 
 async function main(): Promise<void> {
   logger.info("Starting NEURO Orchestrator Service...");
@@ -52,10 +54,16 @@ async function main(): Promise<void> {
 
   // Create the multi-agent consensus graph
   const consensusConfig = getConsensusConfig(config);
-  const graph = await createAgentGraph(config, {
+  const _graph = await createAgentGraph(config, {
     consensusConfig,
     runRecordPath: config.runRecordPath,
   });
+
+  // Start lightweight HTTP/SSE server for dashboard integrations
+  const port = parseInt(process.env.ORCHESTRATOR_PORT || "4000", 10);
+  const sseServer = getSSEServer();
+  sseServer.start(port);
+  logger.info({ port }, "HTTP/SSE API server started");
 
   logger.info("Multi-agent consensus graph initialized");
   logger.info({
@@ -74,8 +82,10 @@ async function main(): Promise<void> {
   });
 }
 
-// Run if executed directly
-const isMainModule = import.meta.url === `file://${process.argv[1]}`;
+// Run if executed directly (cross-platform compatible)
+const currentFileUrl = import.meta.url;
+const argvPath = process.argv[1]?.replace(/\\/g, "/") || "";
+const isMainModule = currentFileUrl.endsWith(argvPath) || currentFileUrl === `file:///${argvPath}` || currentFileUrl === `file://${argvPath}`;
 if (isMainModule) {
   main().catch((error) => {
     logger.fatal({ error }, "Failed to start NEURO Orchestrator Service");

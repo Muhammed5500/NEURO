@@ -340,7 +340,6 @@ impl Pipeline {
         stage: Box<dyn stages::Stage>,
     ) -> tokio::task::JoinHandle<()> {
         let shutdown_rx = self.shutdown_tx.subscribe();
-        let stage = Arc::new(stage);
         
         tokio::spawn(async move {
             let pool = WorkerPool::new(

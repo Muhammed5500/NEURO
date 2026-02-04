@@ -67,7 +67,7 @@ impl NatsBus {
         };
 
         match self.jetstream.get_or_create_stream(stream_config).await {
-            Ok(stream) => {
+            Ok(mut stream) => {
                 info!(
                     stream = %self.config.stream_name,
                     messages = stream.info().await.ok().map(|i| i.state.messages).unwrap_or(0),
